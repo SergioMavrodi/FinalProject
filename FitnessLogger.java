@@ -3,13 +3,25 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * FitnessLogger: A console-based workout tracker for strength, cardio, and endurance exercises.
+ * Features: Add exercises, view logs, track progress, with ASCII-art UI and log file storage.
+ * Author: GymRat
+ */
 public class FitnessLogger {
+
+    /**
+     * Interface for log entries to ensure consistent CSV, string representation, and date access.
+     */
     interface LogEntry {
         String toCSV();
         String toString();
         LocalDate getDate();
     }
 
+    /**
+     * Represents a strength exercise (e.g., Push-ups) with sets, reps, and date.
+     */
     static class StrengthEntry implements LogEntry {
         String name;
         int sets, reps;
@@ -22,17 +34,21 @@ public class FitnessLogger {
             this.date = date;
         }
 
+        /** Calculates total reps (sets × reps). */
         int totalReps() { return sets * reps; }
 
+        /** Formats date as dd/MM/yyyy. */
         String formattedDate() {
             return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
 
+        /** Returns string representation for display (e.g., "18/05/2025 - Strength: Push-ups: 3 sets of 10 reps"). */
         @Override
         public String toString() {
             return formattedDate() + " - Strength: " + name + ": " + sets + " sets of " + reps + " reps";
         }
 
+        /** Returns CSV representation for log file (e.g., "strength;Push-ups;3;10;2025-05-18"). */
         @Override
         public String toCSV() {
             return "strength;" + name + ";" + sets + ";" + reps + ";" + date;
@@ -41,11 +57,15 @@ public class FitnessLogger {
         @Override
         public LocalDate getDate() { return date; }
 
+        /** Creates StrengthEntry from CSV parts. */
         static StrengthEntry fromCSV(String[] parts) {
             return new StrengthEntry(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), LocalDate.parse(parts[4]));
         }
     }
 
+    /**
+     * Represents a cardio exercise (e.g., Plank) with duration, sets, and date.
+     */
     static class CardioEntry implements LogEntry {
         String name;
         int duration, sets;
@@ -58,10 +78,12 @@ public class FitnessLogger {
             this.date = date;
         }
 
+        /** Formats date as dd/MM/yyyy. */
         String formattedDate() {
             return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
 
+        /** Formats duration as hours, minutes, seconds (e.g., "1m0s"). */
         String formatDuration() {
             int h = duration / 3600, m = (duration % 3600) / 60, s = duration % 60;
             if (h > 0) return String.format("%dh%dm%ds", h, m, s);
@@ -69,11 +91,13 @@ public class FitnessLogger {
             return s + "s";
         }
 
+        /** Returns string representation (e.g., "18/05/2025 - Cardio: Plank: 2 sets of 1m0s"). */
         @Override
         public String toString() {
             return formattedDate() + " - Cardio: " + name + ": " + sets + " sets of " + formatDuration();
         }
 
+        /** Returns CSV representation (e.g., "cardio;Plank;60;2;2025-05-18"). */
         @Override
         public String toCSV() {
             return "cardio;" + name + ";" + duration + ";" + sets + ";" + date;
@@ -82,11 +106,15 @@ public class FitnessLogger {
         @Override
         public LocalDate getDate() { return date; }
 
+        /** Creates CardioEntry from CSV parts. */
         static CardioEntry fromCSV(String[] parts) {
             return new CardioEntry(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), LocalDate.parse(parts[4]));
         }
     }
 
+    /**
+     * Represents an endurance exercise (e.g., Swimming, Running) with distance, duration, and date.
+     */
     static class RunningEntry implements LogEntry {
         String name;
         int distance, duration;
@@ -99,14 +127,17 @@ public class FitnessLogger {
             this.date = date;
         }
 
+        /** Formats date as dd/MM/yyyy. */
         String formattedDate() {
             return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
 
+        /** Formats distance as km or m (e.g., "1.0km" or "100m"). */
         String formatDistance() {
             return distance >= 1000 ? (distance / 1000.0) + "km" : distance + "m";
         }
 
+        /** Formats duration as hours, minutes, seconds (e.g., "20m0s"). */
         String formatDuration() {
             int h = duration / 3600, m = (duration % 3600) / 60, s = duration % 60;
             if (h > 0) return String.format("%dh%dm%ds", h, m, s);
@@ -114,11 +145,13 @@ public class FitnessLogger {
             return s + "s";
         }
 
+        /** Returns string representation (e.g., "18/05/2025 - Endurance: Swimming: 1.0km in 20m0s"). */
         @Override
         public String toString() {
             return formattedDate() + " - Endurance: " + name + ": " + formatDistance() + " in " + formatDuration();
         }
 
+        /** Returns CSV representation (e.g., "endurance;Swimming;1000;1200;2025-05-18"). */
         @Override
         public String toCSV() {
             return "endurance;" + name + ";" + distance + ";" + duration + ";" + date;
@@ -127,14 +160,20 @@ public class FitnessLogger {
         @Override
         public LocalDate getDate() { return date; }
 
+        /** Creates RunningEntry from CSV parts. */
         static RunningEntry fromCSV(String[] parts) {
             return new RunningEntry(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), LocalDate.parse(parts[4]));
         }
     }
 
+    // List to store all exercise entries
     static List<LogEntry> log = new ArrayList<>();
+    // File to store logs
     static final String LOG_FILE = "log.txt";
 
+    /**
+     * Loads exercise entries from log.txt into the log list.
+     */
     static void loadLog() {
         File file = new File(LOG_FILE);
         if (!file.exists()) return;
@@ -143,6 +182,7 @@ public class FitnessLogger {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()) {
                     String[] parts = line.split(";");
+                    // Parse based on exercise type
                     switch (parts[0]) {
                         case "strength": log.add(StrengthEntry.fromCSV(parts)); break;
                         case "cardio": log.add(CardioEntry.fromCSV(parts)); break;
@@ -155,6 +195,9 @@ public class FitnessLogger {
         }
     }
 
+    /**
+     * Saves all log entries to log.txt.
+     */
     static void saveLog() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE))) {
             for (LogEntry e : log) {
@@ -166,19 +209,31 @@ public class FitnessLogger {
         }
     }
 
+    /**
+     * Clears the console screen for a clean UI.
+     */
     static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
+    /**
+     * Centers text within a given width for neat display.
+     * @param text Text to center
+     * @param width Desired width
+     * @return Centered text with padding
+     */
     static String centerText(String text, int width) {
         return " ".repeat(Math.max(0, (width - text.length()) / 2)) + text;
     }
 
+    /**
+     * Prints ASCII-art header with slogan.
+     */
     static void printAsciiArt() {
         String[] art = {
                 "███████╗██╗████████╗███╗░░██╗███████╗░██████╗░██████╗  ██╗░░░░░░█████╗░░██████╗░░██████╗░███████╗██████╗░",
-                "██╔════╝██║╚══██╔══╝████╗░██║██╔════╝██╔════╝██╔════╝  ██║░░░░░██╔══██╗██╔════╝░██╔════╝░██╔════╝██╚══██╗",
+                "██╔════╝██║╚══██╔══╝████╗░██║██╔════╝██╔════╝██╔════╝  ██║░░░░░██╔══██╗██╔════╝░██╔════╝░██╔════╝██╔══██╗",
                 "█████╗░░██║░░░██║░░░██╔██╗██║█████╗░░╚█████╗░╚█████╗░  ██║░░░░░██║░░██║██║░░██╗░██║░░██╗░█████╗░░██████╔╝",
                 "██╔══╝░░██║░░░██║░░░██║╚████║██╔══╝░░░╚═══██╗░╚═══██╗  ██║░░░░░██║░░██║██║░░╚██╗██║░░╚██╗██╔══╝░░██╔══██╗",
                 "██║░░░░░██║░░░██║░░░██║░╚███║███████╗██████╔╝██████╔╝  ███████╗╚█████╔╝╚██████╔╝╚██████╔╝███████╗██║░░██║",
@@ -189,15 +244,22 @@ public class FitnessLogger {
         for (String line : art) System.out.println(line);
     }
 
+    /**
+     * Displays a window with ASCII-art and title.
+     * @param title Window title
+     */
     static void displayWindow(String title) {
         clearScreen();
         printAsciiArt();
         System.out.println("\n" + centerText(title, 100) + "\n");
     }
 
+    /**
+     * Displays the main menu with options.
+     */
     static void displayMainMenu() {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(2000); // 2-second delay for smooth UX
         } catch (InterruptedException e) {
             System.out.println("Error during delay: " + e.getMessage());
         }
@@ -210,6 +272,12 @@ public class FitnessLogger {
         System.out.print("\n" + centerText("Select an option: ", 100));
     }
 
+    /**
+     * Gets user input, handles 'back' command.
+     * @param prompt Prompt to display
+     * @param scanner Scanner for input
+     * @return Input string, or null if 'back'
+     */
     static String getInput(String prompt, Scanner scanner) {
         System.out.print(prompt);
         String input = scanner.nextLine().trim().toLowerCase();
@@ -217,6 +285,11 @@ public class FitnessLogger {
         return input;
     }
 
+    /**
+     * Parses duration input (e.g., "2h56m45s") into seconds.
+     * @param input Duration string
+     * @return Seconds, or null if invalid
+     */
     static Integer parseDuration(String input) {
         input = input.trim().toLowerCase();
         if (input.isEmpty()) return null;
@@ -245,6 +318,11 @@ public class FitnessLogger {
         }
     }
 
+    /**
+     * Parses distance input (e.g., "2km", "100m") into meters.
+     * @param input Distance string
+     * @return Meters, or null if invalid
+     */
     static Integer parseDistance(String input) {
         input = input.trim().toLowerCase();
         try {
@@ -256,6 +334,11 @@ public class FitnessLogger {
         }
     }
 
+    /**
+     * Parses date input (e.g., "18/05/2025") or returns today if empty.
+     * @param input Date string
+     * @return LocalDate, or null if invalid
+     */
     static LocalDate parseDate(String input) {
         if (input.trim().isEmpty()) return LocalDate.now();
         try {
@@ -265,6 +348,11 @@ public class FitnessLogger {
         }
     }
 
+    /**
+     * Adds a strength exercise (e.g., Push-ups).
+     * @param scanner Scanner for input
+     * @return "exit" to quit, null to return, or null on success
+     */
     static String addStrengthExercise(Scanner scanner) {
         displayWindow("Add Strength Exercise");
         String name = getInput(centerText("Enter exercise name: ", 100), scanner);
@@ -308,6 +396,11 @@ public class FitnessLogger {
         return null;
     }
 
+    /**
+     * Adds a cardio exercise (e.g., Plank).
+     * @param scanner Scanner for input
+     * @return "exit" to quit, null to return, or null on success
+     */
     static String addCardioExercise(Scanner scanner) {
         displayWindow("Add Cardio Exercise");
         String name = getInput(centerText("Enter exercise name: ", 100), scanner);
@@ -349,6 +442,11 @@ public class FitnessLogger {
         return null;
     }
 
+    /**
+     * Adds an endurance exercise (e.g., Running, Swimming).
+     * @param scanner Scanner for input
+     * @return "exit" to quit, null to return, or null on success
+     */
     static String addEnduranceExercise(Scanner scanner) {
         displayWindow("Add Endurance Exercise");
         String name = getInput(centerText("Enter exercise name (e.g., Running, Swimming): ", 100), scanner);
@@ -388,6 +486,11 @@ public class FitnessLogger {
         return null;
     }
 
+    /**
+     * Guides user to add an exercise by selecting type.
+     * @param scanner Scanner for input
+     * @return "exit" to quit, null to return
+     */
     static String addExercise(Scanner scanner) {
         while (true) {
             displayWindow("Add Exercise");
@@ -408,13 +511,16 @@ public class FitnessLogger {
                 default: System.out.println(centerText("Invalid option.", 100));
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(1000); // 1-second delay for feedback
             } catch (InterruptedException e) {
                 System.out.println("Error during delay: " + e.getMessage());
             }
         }
     }
 
+    /**
+     * Clears the log file and in-memory log.
+     */
     static void clearLog() {
         log.clear();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE))) {
@@ -424,6 +530,11 @@ public class FitnessLogger {
         System.out.println("🗑️ Log cleared!");
     }
 
+    /**
+     * Displays all logged exercises, allows clearing.
+     * @param scanner Scanner for input
+     * @return "exit" to quit, null to return
+     */
     static String viewLog(Scanner scanner) {
         displayWindow("View Log");
         if (log.isEmpty()) {
@@ -447,8 +558,14 @@ public class FitnessLogger {
         }
     }
 
+    /**
+     * Shows progress by comparing first and last entries for each exercise.
+     * @param scanner Scanner for input
+     * @return "exit" to quit, null to return
+     */
     static String showProgress(Scanner scanner) {
         displayWindow("Show Progress");
+        // Group entries by exercise name (case-insensitive)
         Map<String, List<StrengthEntry>> strength = new HashMap<>();
         Map<String, List<CardioEntry>> cardio = new HashMap<>();
         Map<String, List<RunningEntry>> running = new HashMap<>();
@@ -462,6 +579,7 @@ public class FitnessLogger {
         System.out.println(centerText("📈 Progress Summary:", 100));
         boolean hasProgress = false;
 
+        // Strength progress: compare total reps
         for (var entry : strength.entrySet()) {
             List<StrengthEntry> entries = entry.getValue();
             if (entries.size() < 2) continue;
@@ -477,6 +595,7 @@ public class FitnessLogger {
             System.out.println();
         }
 
+        // Cardio progress: compare total duration
         for (var entry : cardio.entrySet()) {
             List<CardioEntry> entries = entry.getValue();
             if (entries.size() < 2) continue;
@@ -492,13 +611,14 @@ public class FitnessLogger {
             System.out.println();
         }
 
+        // Endurance progress: compare speed (m/min)
         for (var entry : running.entrySet()) {
             List<RunningEntry> entries = entry.getValue();
             if (entries.size() < 2) continue;
             entries.sort(Comparator.comparing(LogEntry::getDate));
             RunningEntry oldest = entries.get(0), latest = entries.get(entries.size() - 1);
-            double oldestSpeed = (double) oldest.distance / (oldest.duration / 60.0); // м/мин
-            double latestSpeed = (double) latest.distance / (latest.duration / 60.0); // м/мин
+            double oldestSpeed = (double) oldest.distance / (oldest.duration / 60.0); // m/min
+            double latestSpeed = (double) latest.distance / (latest.duration / 60.0); // m/min
             double speedDiff = latestSpeed - oldestSpeed;
             if (speedDiff <= 0) continue;
             hasProgress = true;
@@ -523,10 +643,14 @@ public class FitnessLogger {
         }
     }
 
+    /**
+     * Main method to run the FitnessLogger application.
+     * @param args Command-line arguments (unused)
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        loadLog();
-        displayMainMenu();
+        loadLog(); // Load existing logs
+        displayMainMenu(); // Show main menu
 
         while (true) {
             String choice = getInput("", scanner);

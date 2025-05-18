@@ -30,7 +30,7 @@ public class FitnessLogger {
 
         @Override
         public String toString() {
-            return formattedDate() + " - " + name + ": " + sets + " sets of " + reps + " reps";
+            return formattedDate() + " - Strength: " + name + ": " + sets + " sets of " + reps + " reps";
         }
 
         @Override
@@ -71,7 +71,7 @@ public class FitnessLogger {
 
         @Override
         public String toString() {
-            return formattedDate() + " - " + name + ": " + sets + " sets of " + formatDuration();
+            return formattedDate() + " - Cardio: " + name + ": " + sets + " sets of " + formatDuration();
         }
 
         @Override
@@ -116,12 +116,12 @@ public class FitnessLogger {
 
         @Override
         public String toString() {
-            return formattedDate() + " - " + name + ": " + formatDistance() + " in " + formatDuration();
+            return formattedDate() + " - Endurance: " + name + ": " + formatDistance() + " in " + formatDuration();
         }
 
         @Override
         public String toCSV() {
-            return "running;" + name + ";" + distance + ";" + duration + ";" + date;
+            return "endurance;" + name + ";" + distance + ";" + duration + ";" + date;
         }
 
         @Override
@@ -146,7 +146,7 @@ public class FitnessLogger {
                     switch (parts[0]) {
                         case "strength": log.add(StrengthEntry.fromCSV(parts)); break;
                         case "cardio": log.add(CardioEntry.fromCSV(parts)); break;
-                        case "running": log.add(RunningEntry.fromCSV(parts)); break;
+                        case "endurance": log.add(RunningEntry.fromCSV(parts)); break;
                     }
                 }
             }
@@ -178,7 +178,7 @@ public class FitnessLogger {
     static void printAsciiArt() {
         String[] art = {
                 "███████╗██╗████████╗███╗░░██╗███████╗░██████╗░██████╗  ██╗░░░░░░█████╗░░██████╗░░██████╗░███████╗██████╗░",
-                "██╔════╝██║╚══██╔══╝████╗░██║██╔════╝██╔════╝██╔════╝  ██║░░░░░██╔══██╗██╔════╝░██╔════╝░██╔════╝██╔══██╗",
+                "██╔════╝██║╚══██╔══╝████╗░██║██╔════╝██╔════╝██╔════╝  ██║░░░░░██╔══██╗██╔════╝░██╔════╝░██╔════╝██╚══██╗",
                 "█████╗░░██║░░░██║░░░██╔██╗██║█████╗░░╚█████╗░╚█████╗░  ██║░░░░░██║░░██║██║░░██╗░██║░░██╗░█████╗░░██████╔╝",
                 "██╔══╝░░██║░░░██║░░░██║╚████║██╔══╝░░░╚═══██╗░╚═══██╗  ██║░░░░░██║░░██║██║░░╚██╗██║░░╚██╗██╔══╝░░██╔══██╗",
                 "██║░░░░░██║░░░██║░░░██║░╚███║███████╗██████╔╝██████╔╝  ███████╗╚█████╔╝╚██████╔╝╚██████╔╝███████╗██║░░██║",
@@ -365,7 +365,7 @@ public class FitnessLogger {
         }
 
         String durationInput = getInput(centerText("Enter duration (e.g., 2h56m45s, 15m24s, 15m, 2h, 2h30m, 48s): ", 100), scanner);
-        if (distanceInput == null) return null;
+        if (durationInput == null) return null;
         if (durationInput.equals("exit")) return "exit";
         Integer duration = parseDuration(durationInput);
         if (duration == null) {

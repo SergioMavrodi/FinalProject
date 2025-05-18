@@ -1,10 +1,8 @@
-running;swimming;2000;7200;2025-05-18
-running;swimming;2000;5400;2025-05-19
+endurance;swimming;2000;7200;2025-05-18
+endurance;swimming;2000;5400;2025-05-19
 strength;push-ups;3;15;2025-05-18
 strength;push-ups;4;20;2025-05-19
 cardio;plank;120;3;2025-05-18
 cardio;plank;180;3;2025-05-19
-running;running;5000;7200;2025-05-18
-running;running;6;5400;2025-05-19
 strength;pull-ups;14;3;2025-05-18
 strength;pull-ups;20;4;2025-05-19

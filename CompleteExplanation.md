@@ -1,6 +1,6 @@
 # Fitness Logger
 
-A Java console-based workout tracker called **Fitness Logger**, designed to log strength, cardio, and endurance exercises, view workout history, and track progress. This project, authored by "GymRat," features an ASCII-art UI, robust input parsing, and persistent storage in `log.txt`. It was updated to rename `RunningEntry` to `EnduranceEntry` (line 126) for clarity, supporting exercises like running or swimming. This `README.md` is converted from a detailed code walkthrough PDF, covering every class, method, and feature for a student presentation.
+A Java console-based workout tracker called **Fitness Logger**, designed to log strength, cardio, and endurance exercises, view workout history, and track progress. This project, authored by "GymRat" features an ASCII-art UI, robust input parsing, and persistent storage in `log.txt`. This `README.md` is complete walkthrough , covering every class, method, and feature.
 
 ## Overview of FitnessLogger Class
 

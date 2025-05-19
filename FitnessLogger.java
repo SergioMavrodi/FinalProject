@@ -115,12 +115,12 @@ public class FitnessLogger {
     /**
      * Represents an endurance exercise (e.g., Swimming, Running) with distance, duration, and date.
      */
-    static class RunningEntry implements LogEntry {
+    static class EnduranceEntry implements LogEntry {
         String name;
         int distance, duration;
         LocalDate date;
 
-        RunningEntry(String name, int distance, int duration, LocalDate date) {
+        EnduranceEntry(String name, int distance, int duration, LocalDate date) {
             this.name = name;
             this.distance = distance;
             this.duration = duration;
@@ -160,9 +160,9 @@ public class FitnessLogger {
         @Override
         public LocalDate getDate() { return date; }
 
-        /** Creates RunningEntry from CSV parts. */
-        static RunningEntry fromCSV(String[] parts) {
-            return new RunningEntry(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), LocalDate.parse(parts[4]));
+        /** Creates EnduranceEntry from CSV parts. */
+        static EnduranceEntry fromCSV(String[] parts) {
+            return new EnduranceEntry(parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), LocalDate.parse(parts[4]));
         }
     }
 
@@ -186,7 +186,7 @@ public class FitnessLogger {
                     switch (parts[0]) {
                         case "strength": log.add(StrengthEntry.fromCSV(parts)); break;
                         case "cardio": log.add(CardioEntry.fromCSV(parts)); break;
-                        case "endurance": log.add(RunningEntry.fromCSV(parts)); break;
+                        case "endurance": log.add(EnduranceEntry.fromCSV(parts)); break;
                     }
                 }
             }
@@ -480,7 +480,7 @@ public class FitnessLogger {
             return null;
         }
 
-        log.add(new RunningEntry(name, distance, duration, date));
+        log.add(new EnduranceEntry(name, distance, duration, date));
         saveLog();
         System.out.println(centerText("✅ Exercise added!", 100));
         return null;
@@ -568,12 +568,12 @@ public class FitnessLogger {
         // Group entries by exercise name (case-insensitive)
         Map<String, List<StrengthEntry>> strength = new HashMap<>();
         Map<String, List<CardioEntry>> cardio = new HashMap<>();
-        Map<String, List<RunningEntry>> running = new HashMap<>();
+        Map<String, List<EnduranceEntry>> endurance = new HashMap<>();
 
         for (LogEntry e : log) {
             if (e instanceof StrengthEntry se) strength.computeIfAbsent(se.name.toLowerCase(), k -> new ArrayList<>()).add(se);
             else if (e instanceof CardioEntry ce) cardio.computeIfAbsent(ce.name.toLowerCase(), k -> new ArrayList<>()).add(ce);
-            else if (e instanceof RunningEntry re) running.computeIfAbsent(re.name.toLowerCase(), k -> new ArrayList<>()).add(re);
+            else if (e instanceof EnduranceEntry re) endurance.computeIfAbsent(re.name.toLowerCase(), k -> new ArrayList<>()).add(re);
         }
 
         System.out.println(centerText("📈 Progress Summary:", 100));
@@ -612,11 +612,11 @@ public class FitnessLogger {
         }
 
         // Endurance progress: compare speed (m/min)
-        for (var entry : running.entrySet()) {
-            List<RunningEntry> entries = entry.getValue();
+        for (var entry : endurance.entrySet()) {
+            List<EnduranceEntry> entries = entry.getValue();
             if (entries.size() < 2) continue;
             entries.sort(Comparator.comparing(LogEntry::getDate));
-            RunningEntry oldest = entries.get(0), latest = entries.get(entries.size() - 1);
+            EnduranceEntry oldest = entries.get(0), latest = entries.get(entries.size() - 1);
             double oldestSpeed = (double) oldest.distance / (oldest.duration / 60.0); // m/min
             double latestSpeed = (double) latest.distance / (latest.duration / 60.0); // m/min
             double speedDiff = latestSpeed - oldestSpeed;
